@@ -8,6 +8,8 @@ import { formatDate } from '@/lib/format';
 import { getCategoryLabel } from '@/lib/categories';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
+export const dynamic = 'force-static';
+export const dynamicParams = true;
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }) {
