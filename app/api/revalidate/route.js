@@ -30,7 +30,7 @@ export async function GET() {
   const runtimeEnv = await getRuntimeEnv();
   return json({
     ok: true,
-    runtime: 'revalidation-diagnostic',
+    runtime: 'revalidation-diagnostic-v2',
     hasRevalidateSecret: Boolean(runtimeEnv.REVALIDATE_SECRET),
     hasBase44AppId: Boolean(runtimeEnv.BASE44_APP_ID),
   });
