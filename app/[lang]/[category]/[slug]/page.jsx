@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import ArticleBody from '@/components/ArticleBody';
 import ArticleCard from '@/components/ArticleCard';
 import ArticleSection from '@/components/ArticleSection';
+import ArticleViewTracker from '@/components/ArticleViewTracker';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import ReadingProgress from '@/components/ReadingProgress';
 import ShareLinks from '@/components/ShareLinks';
@@ -193,6 +194,7 @@ export default async function ArticlePage({ params }) {
   return (
     <>
       <ReadingProgress />
+      <ArticleViewTracker articleId={article.id} language={lang} />
 
       <script
         type="application/ld+json"
