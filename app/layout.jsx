@@ -2,7 +2,7 @@ import './globals.css';
 import { Inter, Instrument_Serif, Cormorant_Garamond } from 'next/font/google';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
-const inter = Inter({ subsets: ['latin', 'devanagari'], variable: '--font-inter', display: 'swap' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const instrument = Instrument_Serif({ subsets: ['latin'], variable: '--font-instrument', weight: '400', display: 'swap' });
 const cormorant = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-cormorant', weight: ['600'], display: 'swap' });
 
