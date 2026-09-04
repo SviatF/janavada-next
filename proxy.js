@@ -6,9 +6,9 @@ export function proxy(request) {
     .split(':')[0]
     .toLowerCase();
 
-  // Every Vercel preview/alias must stay out of search indexes.
+  // Every temporary platform hostname must stay out of search indexes.
   // The custom production domain janavada.com remains indexable.
-  if (host.endsWith('.vercel.app')) {
+  if (host.endsWith('.vercel.app') || host.endsWith('.workers.dev')) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
 
