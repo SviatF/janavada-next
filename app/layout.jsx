@@ -17,6 +17,10 @@ export const metadata = {
   authors: [{ name: 'JanaVada News' }],
   creator: 'JanaVada News',
   publisher: 'JanaVada News',
+  icons: {
+    icon: [{ url: '/favicon.webp', type: 'image/webp' }],
+    shortcut: '/favicon.webp',
+  },
   robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
