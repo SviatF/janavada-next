@@ -1,7 +1,16 @@
 import { createClient } from '@base44/sdk';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
-const APP_ID = process.env.BASE44_APP_ID || '6a2b3ec4c430dbb80ac96a13';
+const FALLBACK_APP_ID = '6a2b3ec4c430dbb80ac96a13';
+
+async function getRuntimeEnv() {
+  try {
+    const mod = await import('cloudflare:workers');
+    return mod.env || {};
+  } catch {
+    return process.env || {};
+  }
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,11 +27,12 @@ export async function OPTIONS() {
 }
 
 export async function GET() {
+  const runtimeEnv = await getRuntimeEnv();
   return json({
     ok: true,
     runtime: 'revalidation-diagnostic',
-    hasRevalidateSecret: Boolean(process.env.REVALIDATE_SECRET),
-    hasBase44AppId: Boolean(process.env.BASE44_APP_ID),
+    hasRevalidateSecret: Boolean(runtimeEnv.REVALIDATE_SECRET),
+    hasBase44AppId: Boolean(runtimeEnv.BASE44_APP_ID),
   });
 }
 
@@ -36,15 +46,19 @@ async function authorize(request) {
     return { ok: false, status: 401, error: 'Missing bearer token' };
   }
 
+  const runtimeEnv = await getRuntimeEnv();
+  const revalidateSecret = runtimeEnv.REVALIDATE_SECRET;
+  const appId = runtimeEnv.BASE44_APP_ID || FALLBACK_APP_ID;
+
   // Server-to-server publishing (Base44 backend workers / automation)
-  if (process.env.REVALIDATE_SECRET && token === process.env.REVALIDATE_SECRET) {
+  if (revalidateSecret && token === revalidateSecret) {
     return { ok: true, mode: 'shared-secret' };
   }
 
   // Manual publishing from an authenticated Base44 admin session
   try {
     const authClient = createClient({
-      appId: APP_ID,
+      appId,
       token,
     });
 
