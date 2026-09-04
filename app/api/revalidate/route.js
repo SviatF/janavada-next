@@ -17,16 +17,22 @@ export async function OPTIONS() {
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function POST(request) {
+async function authorize(request) {
   const authorization = request.headers.get('authorization') || '';
   const token = authorization.startsWith('Bearer ')
     ? authorization.slice(7).trim()
     : '';
 
   if (!token) {
-    return json({ ok: false, error: 'Missing Base44 access token' }, 401);
+    return { ok: false, status: 401, error: 'Missing bearer token' };
   }
 
+  // Server-to-server publishing (Base44 backend workers / automation)
+  if (process.env.REVALIDATE_SECRET && token === process.env.REVALIDATE_SECRET) {
+    return { ok: true, mode: 'shared-secret' };
+  }
+
+  // Manual publishing from an authenticated Base44 admin session
   try {
     const authClient = createClient({
       appId: APP_ID,
@@ -36,11 +42,21 @@ export async function POST(request) {
     const user = await authClient.auth.me();
 
     if (!user || user.role !== 'admin') {
-      return json({ ok: false, error: 'Admin authorization required' }, 403);
+      return { ok: false, status: 403, error: 'Admin authorization required' };
     }
+
+    return { ok: true, mode: 'base44-admin' };
   } catch (error) {
     console.error('[JanaVada] Revalidate auth failed:', error);
-    return json({ ok: false, error: 'Invalid or expired Base44 access token' }, 401);
+    return { ok: false, status: 401, error: 'Invalid bearer token' };
+  }
+}
+
+export async function POST(request) {
+  const auth = await authorize(request);
+
+  if (!auth.ok) {
+    return json({ ok: false, error: auth.error }, auth.status);
   }
 
   const payload = await request.json().catch(() => ({}));
@@ -62,6 +78,7 @@ export async function POST(request) {
 
   return json({
     ok: true,
+    authMode: auth.mode,
     revalidated: { lang, category, slug },
   });
 }
