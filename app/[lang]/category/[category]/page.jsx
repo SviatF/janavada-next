@@ -5,6 +5,8 @@ import { CATEGORY_DESCRIPTIONS, CATEGORY_SLUGS, getCategoryLabel } from '@/lib/c
 import { getCategoryArticles } from '@/lib/articles';
 import { SITE_URL } from '@/lib/site';
 
+export const dynamic = 'force-static';
+export const dynamicParams = true;
 export const revalidate = 600;
 
 export async function generateMetadata({ params }) {
