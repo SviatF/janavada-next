@@ -17,15 +17,6 @@ export async function OPTIONS() {
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function GET() {
-  return json({
-    ok: true,
-    runtime: 'revalidation-diagnostic-v3',
-    hasRevalidateSecret: Boolean(process.env.REVALIDATE_SECRET),
-    hasBase44AppId: Boolean(process.env.BASE44_APP_ID),
-  });
-}
-
 async function authorize(request) {
   const authorization = request.headers.get('authorization') || '';
   const token = authorization.startsWith('Bearer ')
