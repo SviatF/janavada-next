@@ -36,12 +36,10 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
   if (variant === 'compact') {
     return (
       <Link href={url} className="group -mx-3 flex gap-4 rounded-lg border-b border-border px-3 py-4 transition-colors last:border-0 hover:bg-ivory">
-        {article.featured_image ? (
+        {article.featured_image && (
           <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md">
             <Image src={article.featured_image} alt={article.featured_image_alt || article.title} fill sizes="80px" className="object-cover" />
           </div>
-        ) : (
-          <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-md bg-[#F3F0EA]"><span className="text-xs text-gray-400">JV</span></div>
         )}
         <div className="flex min-w-0 flex-col justify-center">
           <CategoryBadge category={article.category} lang={lang} />
@@ -55,12 +53,10 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
   if (variant === 'horizontal') {
     return (
       <Link href={url} className="group flex flex-col gap-5 transition duration-300 hover:-translate-y-0.5 sm:flex-row">
-        {article.featured_image ? (
+        {article.featured_image && (
           <div className="relative h-32 shrink-0 overflow-hidden rounded-lg sm:h-auto sm:w-44">
             <Image src={article.featured_image} alt={article.featured_image_alt || article.title} fill sizes="176px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
           </div>
-        ) : (
-          <div className="flex h-32 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 sm:w-44"><span className="font-heading text-xl text-ashoka">JV</span></div>
         )}
         <div className="flex min-w-0 flex-col justify-center">
           <CategoryBadge category={article.category} lang={lang} />
@@ -79,16 +75,14 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
   }
 
   return (
-    <Link href={url} className="group block transition duration-300 hover:-translate-y-0.5">
+    <Link href={url} className="group block h-full transition duration-300 hover:-translate-y-0.5">
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-white shadow-card transition-shadow duration-300 group-hover:shadow-lg">
-        {article.featured_image ? (
+        {article.featured_image && (
           <div className="relative aspect-[16/9] overflow-hidden">
             <Image src={article.featured_image} alt={article.featured_image_alt || article.title} fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
           </div>
-        ) : (
-          <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-indigo-50 via-indigo-100 to-blue-100"><span className="font-heading text-3xl text-ashoka opacity-30">JV</span></div>
         )}
-        <div className="flex flex-1 flex-col p-5">
+        <div className={"flex flex-1 flex-col " + (article.featured_image ? "p-5" : "p-6")}>
           <CategoryBadge category={article.category} lang={lang} />
           <h3 className="mt-2.5 line-clamp-2 flex-1 font-heading text-[17px] leading-snug text-ink transition-colors group-hover:text-ashoka">{article.title}</h3>
           {summary && <p className="mt-2 line-clamp-2 font-body text-[13px] leading-relaxed text-gray-500">{summary}</p>}
