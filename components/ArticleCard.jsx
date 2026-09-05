@@ -44,7 +44,7 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
         <div className="flex min-w-0 flex-col justify-center">
           <CategoryBadge category={article.category} lang={lang} />
           <h3 className="mt-1.5 line-clamp-2 font-heading text-[15px] leading-snug text-ink transition-colors group-hover:text-ashoka">{article.title}</h3>
-          <span className="mt-1.5 font-body text-[11px] text-gray-400">{timeAgo(article.published_date || article.created_date, lang)}</span>
+          <span className="mt-1.5 font-body text-[11px] text-gray-500">{timeAgo(article.published_date || article.created_date, lang)}</span>
         </div>
       </Link>
     );
@@ -62,7 +62,7 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
           <CategoryBadge category={article.category} lang={lang} />
           <h3 className="mt-2 line-clamp-2 font-heading text-xl leading-snug text-ink transition-colors group-hover:text-ashoka">{article.title}</h3>
           {summary && <p className="mt-2 line-clamp-2 font-body text-sm leading-relaxed text-gray-500">{summary}</p>}
-          <div className="mt-3 flex items-center gap-3 font-body text-[11px] text-gray-400">
+          <div className="mt-3 flex items-center gap-3 font-body text-[11px] text-gray-500">
             {article.author_name && <span className="font-medium text-gray-500">{article.author_name}</span>}
             {article.author_name && <span>·</span>}
             <span>{timeAgo(article.published_date || article.created_date, lang)}</span>
@@ -86,7 +86,7 @@ export default function ArticleCard({ article, variant = 'default', lang = 'en' 
           <CategoryBadge category={article.category} lang={lang} />
           <h3 className="mt-2.5 line-clamp-2 flex-1 font-heading text-[17px] leading-snug text-ink transition-colors group-hover:text-ashoka">{article.title}</h3>
           {summary && <p className="mt-2 line-clamp-2 font-body text-[13px] leading-relaxed text-gray-500">{summary}</p>}
-          <div className="mt-4 flex items-center gap-2 border-t border-[#F3F0EA] pt-4 font-body text-[11px] text-gray-400">
+          <div className="mt-4 flex items-center gap-2 border-t border-[#F3F0EA] pt-4 font-body text-[11px] text-gray-500">
             {article.author_name && <span className="font-semibold text-gray-500">{article.author_name}</span>}
             {article.author_name && <span>·</span>}
             <span>{timeAgo(article.published_date || article.created_date, lang)}</span>
