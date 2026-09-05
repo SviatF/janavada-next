@@ -4,18 +4,18 @@ import { SITE_URL } from '@/lib/site';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  const page = TRUST_PAGES['about']?.[lang] || TRUST_PAGES['about'].en;
+  const page = TRUST_PAGES['editorial-policy']?.[lang] || TRUST_PAGES['editorial-policy'].en;
   return {
     title: page.title,
     description: page.description,
     alternates: {
-      canonical: SITE_URL + '/' + lang + '/about',
-      languages: { 'en-IN': SITE_URL + '/en/about', 'hi-IN': SITE_URL + '/hi/about' },
+      canonical: SITE_URL + '/' + lang + '/editorial-policy',
+      languages: { 'en-IN': SITE_URL + '/en/editorial-policy', 'hi-IN': SITE_URL + '/hi/editorial-policy' },
     },
   };
 }
 
 export default async function Page({ params }) {
   const { lang } = await params;
-  return <TrustPage pageKey="about" lang={lang} />;
+  return <TrustPage pageKey="editorial-policy" lang={lang} />;
 }

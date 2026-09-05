@@ -9,7 +9,7 @@ export default function Footer({ lang = 'en' }) {
       <div className="h-[3px] bg-ashoka" />
       <div className="mx-auto max-w-7xl px-6 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <Link href={'/' + lang}><JanaVadaLogo size={36} theme="light" lang={lang} /></Link>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-gray-400">
               {hi
@@ -19,7 +19,7 @@ export default function Footer({ lang = 'en' }) {
             <div className="mt-6 text-sm font-medium text-gold">{hi ? 'मेड इन इंडिया' : 'Made in India'} 🇮🇳</div>
           </div>
 
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
             <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[.1em] text-gray-500">{hi ? 'कवरेज' : 'Coverage'}</h4>
             <div className="space-y-2.5">
               {CATEGORIES.slice(0, 7).map(cat => (
@@ -41,13 +41,24 @@ export default function Footer({ lang = 'en' }) {
             </div>
           </div>
 
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
             <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[.1em] text-gray-500">{hi ? 'कंपनी' : 'Company'}</h4>
             <div className="space-y-2.5">
               <Link href={'/' + lang + '/about'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'हमारे बारे में' : 'About Us'}</Link>
-              <Link href={'/' + lang + '/contact'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'संपर्क' : 'Contact'}</Link>
               <Link href={'/' + lang + '/privacy'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'गोपनीयता नीति' : 'Privacy Policy'}</Link>
               <Link href={'/' + lang + '/terms'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'उपयोग की शर्तें' : 'Terms of Use'}</Link>
+            </div>
+          </div>
+
+          <div className="md:col-span-3">
+            <h4 className="mb-5 text-[11px] font-bold uppercase tracking-[.1em] text-gray-500">{hi ? 'संपादकीय मानक' : 'Editorial Standards'}</h4>
+            <div className="space-y-2.5">
+              <Link href={'/' + lang + '/editorial-policy'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'संपादकीय नीति' : 'Editorial Policy'}</Link>
+              <Link href={'/' + lang + '/fact-checking-policy'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'तथ्य-जांच नीति' : 'Fact-Checking Policy'}</Link>
+              <Link href={'/' + lang + '/corrections-policy'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'सुधार नीति' : 'Corrections Policy'}</Link>
+              <Link href={'/' + lang + '/ethics-policy'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'नैतिकता नीति' : 'Ethics Policy'}</Link>
+              <Link href={'/' + lang + '/authors'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'लेखक' : 'Authors'}</Link>
+              <Link href={'/' + lang + '/contact'} className="block text-[13px] text-gray-400 hover:text-white">{hi ? 'संपर्क' : 'Contact'}</Link>
             </div>
           </div>
         </div>

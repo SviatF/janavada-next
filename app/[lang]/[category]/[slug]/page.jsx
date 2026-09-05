@@ -19,6 +19,8 @@ import {
 import { formatDate } from '@/lib/format';
 import { getCategoryLabel } from '@/lib/categories';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { getPublicAuthor } from '@/lib/authors';
+import { articleTypeLabel, formatISTDateTime, getArticleType, meaningfulModifiedDate } from '@/lib/editorial';
 
 export const dynamic = 'force-static';
 export const dynamicParams = true;
@@ -69,8 +71,8 @@ export async function generateMetadata({ params }) {
       description: article.summary || article.subtitle,
       url: canonical,
       publishedTime: article.published_date,
-      modifiedTime: article.updated_date_custom || article.updated_date || article.published_date,
-      authors: article.author_name ? [article.author_name] : undefined,
+      modifiedTime: meaningfulModifiedDate(article) || article.published_date,
+      authors: ['JanaVada Editorial Desk'],
       section: getCategoryLabel(article.category, lang),
       tags: article.tags || undefined,
       images: article.featured_image
@@ -91,11 +93,12 @@ export default async function ArticlePage({ params }) {
   const article = await getArticle(slug, lang);
   if (!article || article.category !== category) notFound();
 
-  const [counterpart, related, categoryArticles, trending] = await Promise.all([
+  const [counterpart, related, categoryArticles, trending, publicAuthor] = await Promise.all([
     getCounterpart(article, lang),
     getRelatedArticles(article, lang, 3),
     getCategoryArticles(article.category, lang),
     getTrendingArticles(lang, 6),
+    getPublicAuthor(article),
   ]);
 
   const moreFromCategory = categoryArticles
@@ -107,7 +110,11 @@ export default async function ArticlePage({ params }) {
     .slice(0, 3);
 
   const isHindi = lang === 'hi';
+  const articleType = getArticleType(article);
+  const modifiedAt = meaningfulModifiedDate(article);
   const canonical = article.canonical_url || SITE_URL + '/' + lang + '/' + category + '/' + slug;
+  const authorUrl = SITE_URL + '/' + lang + '/author/' + publicAuthor.urlSlug;
+  const displaySources = article.sources?.length ? article.sources : (article.source_url ? [{ name: 'Source', url: article.source_url, type: 'other' }] : []);
   const alternateUrl = counterpart
     ? SITE_URL + '/' + (isHindi ? 'en' : 'hi') + '/' + counterpart.category + '/' + counterpart.slug
     : null;
@@ -134,19 +141,22 @@ export default async function ArticlePage({ params }) {
     headline: article.title,
     description: article.summary || article.subtitle,
     image: article.featured_image ? [article.featured_image] : undefined,
+    url: canonical,
     datePublished: article.published_date,
-    dateModified: article.updated_date_custom || article.updated_date || article.published_date,
+    dateModified: modifiedAt || article.published_date,
     mainEntityOfPage: canonical,
     articleSection: getCategoryLabel(article.category, lang),
     keywords: article.tags?.join(', '),
     author: {
-      '@type': article.author_name ? 'Person' : 'Organization',
-      name: article.author_name || SITE_NAME,
+      '@type': publicAuthor.entityType === 'person' ? 'Person' : 'Organization',
+      name: publicAuthor.name,
+      url: authorUrl,
     },
     publisher: {
-      '@type': 'NewsMediaOrganization',
+      '@type': 'Organization',
       name: SITE_NAME,
       url: SITE_URL,
+      logo: { '@type': 'ImageObject', url: SITE_URL + '/favicon.webp' },
     },
     inLanguage: isHindi ? 'hi-IN' : 'en-IN',
   };
@@ -239,12 +249,10 @@ export default async function ArticlePage({ params }) {
           </div>
         )}
 
-        <Link
-          href={'/' + lang + '/category/' + article.category}
-          className="mb-4 inline-block rounded-full bg-ashoka/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.07em] text-ashoka transition-colors hover:bg-ashoka/20"
-        >
-          {getCategoryLabel(article.category, lang)}
-        </Link>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="inline-block rounded-full bg-saffron/10 px-3 py-1 text-xs font-bold uppercase tracking-[.08em] text-saffron">{articleTypeLabel(articleType, lang)}</span>
+          <Link href={'/' + lang + '/category/' + article.category} className="inline-block rounded-full bg-ashoka/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.07em] text-ashoka transition-colors hover:bg-ashoka/20">{getCategoryLabel(article.category, lang)}</Link>
+        </div>
 
         <h1 className="mb-4 font-heading text-3xl leading-tight text-ink sm:text-4xl lg:text-5xl">
           {article.title}
@@ -254,28 +262,15 @@ export default async function ArticlePage({ params }) {
           <p className="mb-6 text-lg leading-relaxed text-gray-500">{article.subtitle}</p>
         )}
 
-        <div className="mb-8 flex flex-wrap items-center gap-4 border-y border-border/70 py-4">
-          {article.author_name && (
-            <span className="text-sm font-semibold text-ink">{article.author_name}</span>
-          )}
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
-            <Calendar className="h-4 w-4" />
-            {formatDate(article.published_date || article.created_date, lang)}
-          </span>
-          {article.reading_time && (
-            <span className="flex items-center gap-1.5 text-sm text-gray-500">
-              <Clock className="h-4 w-4" />
-              {article.reading_time} {isHindi ? 'मिनट' : 'min read'}
-            </span>
-          )}
-          <span className="flex items-center gap-1.5 text-sm text-gray-500">
-            <Eye className="h-4 w-4" />
-            {Number(article.views || 0).toLocaleString()} {isHindi ? 'व्यूज़' : 'views'}
-          </span>
-
-          <div className="w-full pt-1 sm:ml-auto sm:w-auto sm:pt-0">
-            <ShareLinks title={article.title} url={canonical} lang={lang} />
+        <div className="mb-8 border-y border-border/70 py-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <Link href={'/' + lang + '/author/' + publicAuthor.urlSlug} className="font-semibold text-ink hover:text-ashoka">{publicAuthor.name}</Link>
+            <span className="flex items-center gap-1.5 text-gray-500"><Calendar className="h-4 w-4" />{isHindi ? 'प्रकाशित:' : 'Published:'} {formatISTDateTime(article.published_date || article.created_date, lang)}</span>
+            {modifiedAt && <span className="text-gray-500">{isHindi ? 'अपडेट:' : 'Updated:'} {formatISTDateTime(modifiedAt, lang)}</span>}
+            <span className="flex items-center gap-1.5 text-gray-500"><Clock className="h-4 w-4" />{articleTypeLabel(articleType, lang)}{article.reading_time ? ' · ' + article.reading_time + ' ' + (isHindi ? 'मिनट' : 'min read') : ''}</span>
+            <span className="flex items-center gap-1.5 text-gray-500"><Eye className="h-4 w-4" />{Number(article.views || 0).toLocaleString()} {isHindi ? 'व्यूज़' : 'views'}</span>
           </div>
+          <div className="mt-3"><ShareLinks title={article.title} url={canonical} lang={lang} /></div>
         </div>
 
         {article.featured_image && (
@@ -347,6 +342,20 @@ export default async function ArticlePage({ params }) {
                 </details>
               ))}
             </div>
+          </section>
+        )}
+
+        {article.corrections?.length > 0 && (
+          <section className="my-8 rounded-xl border border-amber-200 bg-amber-50 p-5">
+            <h2 className="mb-3 font-heading text-xl text-ink">{isHindi ? 'सुधार' : 'Corrections'}</h2>
+            <div className="space-y-3">{article.corrections.map((correction, index) => <div key={index}><p className="text-xs font-semibold uppercase tracking-[.06em] text-amber-800">{isHindi ? 'सुधार' : 'Correction'} — {formatISTDateTime(correction.date, lang)}</p><p className="mt-1 text-sm leading-6 text-gray-700">{correction.summary}</p></div>)}</div>
+          </section>
+        )}
+
+        {displaySources.length > 0 && (
+          <section className="my-8 border-t border-border/70 pt-6">
+            <h2 className="mb-4 font-heading text-2xl text-ink">{isHindi ? 'स्रोत / संदर्भ' : 'Sources / References'}</h2>
+            <ol className="space-y-3">{displaySources.map((source, index) => <li key={source.url + index} className="text-sm leading-6 text-gray-600"><a href={source.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-ashoka hover:underline">{source.name || source.url}</a>{source.type && <span className="ml-2 text-xs uppercase tracking-[.05em] text-gray-400">{source.type.replaceAll('-', ' ')}</span>}{source.published_date && <span className="ml-2 text-gray-400">{formatISTDateTime(source.published_date, lang)}</span>}</li>)}</ol>
           </section>
         )}
 

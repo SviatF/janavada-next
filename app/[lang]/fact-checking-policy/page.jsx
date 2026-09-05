@@ -4,18 +4,18 @@ import { SITE_URL } from '@/lib/site';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  const page = TRUST_PAGES['about']?.[lang] || TRUST_PAGES['about'].en;
+  const page = TRUST_PAGES['fact-checking-policy']?.[lang] || TRUST_PAGES['fact-checking-policy'].en;
   return {
     title: page.title,
     description: page.description,
     alternates: {
-      canonical: SITE_URL + '/' + lang + '/about',
-      languages: { 'en-IN': SITE_URL + '/en/about', 'hi-IN': SITE_URL + '/hi/about' },
+      canonical: SITE_URL + '/' + lang + '/fact-checking-policy',
+      languages: { 'en-IN': SITE_URL + '/en/fact-checking-policy', 'hi-IN': SITE_URL + '/hi/fact-checking-policy' },
     },
   };
 }
 
 export default async function Page({ params }) {
   const { lang } = await params;
-  return <TrustPage pageKey="about" lang={lang} />;
+  return <TrustPage pageKey="fact-checking-policy" lang={lang} />;
 }
