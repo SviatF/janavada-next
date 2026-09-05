@@ -49,15 +49,17 @@ function TrendingItem({ article, rank, lang }) {
               </div>
             </div>
           ) : (
-            <div className="flex aspect-[3/4] items-end bg-gradient-to-br from-indigo-50 to-blue-100 p-5 sm:aspect-[4/3]">
-              <div>
-                <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-saffron px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.08em] text-white">
-                  <TrendingUp className="h-3 w-3" /> {lang === 'hi' ? '#1 ट्रेंडिंग' : '#1 Trending'}
-                </div>
-                <h3 className="font-heading text-2xl text-ink transition-colors group-hover:text-ashoka">{article.title}</h3>
-                <div className="mt-3 flex items-center gap-2 text-[12px] text-gray-400">
-                  <Eye className="h-3.5 w-3.5" /><strong className="text-ink">{Number(article._views14d || 0).toLocaleString()}</strong> {lang === 'hi' ? 'व्यूज़' : 'views'}
-                </div>
+            <div className="flex min-h-[290px] flex-col justify-end p-6 sm:min-h-[330px]">
+              <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-saffron px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.08em] text-white">
+                <TrendingUp className="h-3 w-3" /> {lang === 'hi' ? '#1 ट्रेंडिंग' : '#1 Trending'}
+              </div>
+              <span className={'mb-3 inline-block w-fit rounded-full px-2.5 py-[3px] text-[11px] font-bold uppercase tracking-[.07em] ' + colorClass}>{getCategoryLabel(article.category, lang)}</span>
+              <h3 className="font-heading text-2xl leading-snug text-ink transition-colors group-hover:text-ashoka sm:text-[28px]">{article.title}</h3>
+              {(article.summary || article.subtitle) && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-gray-500">{article.summary || article.subtitle}</p>}
+              <div className="mt-5 flex items-center gap-3 border-t border-[#F3F0EA] pt-4 text-[12px] text-gray-400">
+                <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /><strong className="text-ink">{Number(article._views14d || 0).toLocaleString()}</strong> {lang === 'hi' ? 'व्यूज़' : 'views'}</span>
+                <span>·</span>
+                <span>{timeAgo(article.published_date || article.created_date, lang)}</span>
               </div>
             </div>
           )}
@@ -90,11 +92,18 @@ function TrendingItem({ article, rank, lang }) {
               </div>
             </div>
           ) : (
-            <div className="flex items-start gap-3 p-5">
-              <span className={'mt-0.5 shrink-0 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.08em] text-white ' + badge}>#{rank}</span>
+            <div className="flex min-h-[180px] flex-col justify-between p-5">
               <div>
-                <span className={'mb-1.5 inline-block rounded-full px-2.5 py-[3px] text-[11px] font-bold uppercase tracking-[.07em] ' + colorClass}>{getCategoryLabel(article.category, lang)}</span>
-                <h4 className="line-clamp-3 font-heading text-lg text-ink transition-colors group-hover:text-ashoka">{article.title}</h4>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className={'shrink-0 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.08em] text-white ' + badge}>#{rank}</span>
+                  <span className={'inline-block rounded-full px-2.5 py-[3px] text-[11px] font-bold uppercase tracking-[.07em] ' + colorClass}>{getCategoryLabel(article.category, lang)}</span>
+                </div>
+                <h4 className="line-clamp-3 font-heading text-lg leading-snug text-ink transition-colors group-hover:text-ashoka sm:text-xl">{article.title}</h4>
+                {(article.summary || article.subtitle) && <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-gray-500">{article.summary || article.subtitle}</p>}
+              </div>
+              <div className="mt-4 flex items-center gap-2 border-t border-[#F3F0EA] pt-3 text-[11px] text-gray-400">
+                <Eye className="h-3 w-3" /><span className="font-semibold text-gray-500">{Number(article._views14d || 0).toLocaleString()}</span>
+                <span>·</span><span>{timeAgo(article.published_date || article.created_date, lang)}</span>
               </div>
             </div>
           )}
@@ -106,12 +115,10 @@ function TrendingItem({ article, rank, lang }) {
   return (
     <Link href={url} className="group -mx-4 flex items-start gap-4 rounded-lg border-b border-[#F3F0EA] px-4 py-4 transition-colors last:border-0 hover:bg-ivory">
       <div className="w-8 shrink-0 text-center"><span className="font-body text-[15px] font-bold leading-none text-gray-300">#{rank}</span></div>
-      {article.featured_image ? (
+      {article.featured_image && (
         <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-md">
           <Image src={article.featured_image} alt={article.featured_image_alt || article.title} fill sizes="64px" className="object-cover" />
         </div>
-      ) : (
-        <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-indigo-50 to-indigo-100"><span className="text-xs font-bold text-ashoka opacity-40">JV</span></div>
       )}
       <div className="min-w-0 flex-1">
         <span className={'mb-1 inline-block rounded-full px-2 py-[2px] text-[10px] font-bold uppercase tracking-[.07em] ' + colorClass}>{getCategoryLabel(article.category, lang)}</span>
