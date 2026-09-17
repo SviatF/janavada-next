@@ -58,13 +58,23 @@ export async function GET(request) {
       live_url: article.canonical_url || `https://janavada.com/${article.language || 'en'}/${String(article.category || 'news').toLowerCase()}/${article.slug}`
     }));
 
+    // Base44 can return a smaller batch than requested when the selected records contain
+    // large article bodies. A short batch therefore does NOT prove that the collection is
+    // exhausted. Consumers must advance by the actual number returned and request the next
+    // offset until an empty page is received.
+    const nextOffset = offset + rows.length;
+    const exhausted = rows.length === 0;
+
     return NextResponse.json({
       ok:true,
       source:'janavada-next-live',
       offset,
       limit,
       count:rows.length,
-      has_more:rows.length === limit,
+      next_offset:nextOffset,
+      exhausted,
+      // Kept for backwards compatibility. Inventory clients should prefer exhausted/next_offset.
+      has_more:!exhausted,
       articles:rows,
       authors:authors || [],
       generated_at:new Date().toISOString()
