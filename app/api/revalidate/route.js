@@ -27,12 +27,10 @@ async function authorize(request) {
     return { ok: false, status: 401, error: 'Missing bearer token' };
   }
 
-  // Server-to-server publishing (Base44 backend workers / automation)
   if (process.env.REVALIDATE_SECRET && token === process.env.REVALIDATE_SECRET) {
     return { ok: true, mode: 'shared-secret' };
   }
 
-  // Manual publishing from an authenticated Base44 admin session
   try {
     const authClient = createClient({
       appId: APP_ID,
@@ -67,18 +65,20 @@ export async function POST(request) {
   }
 
   const lang = language === 'hi' ? 'hi' : 'en';
+  const categorySlug = String(category).toLowerCase();
 
   revalidateTag('articles', 'max');
   revalidateTag('article-views', 'max');
+  revalidateTag('cms-articles', 'max');
   revalidatePath('/' + lang);
-  revalidatePath('/' + lang + '/category/' + category);
-  revalidatePath('/' + lang + '/' + category + '/' + slug);
+  revalidatePath('/' + lang + '/category/' + categorySlug);
+  revalidatePath('/' + lang + '/' + categorySlug + '/' + slug);
   revalidatePath('/sitemap.xml');
   revalidatePath('/news-sitemap.xml');
 
   return json({
     ok: true,
     authMode: auth.mode,
-    revalidated: { lang, category, slug },
+    revalidated: { lang, category: categorySlug, slug },
   });
 }
