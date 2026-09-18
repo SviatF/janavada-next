@@ -1,3 +1,5 @@
+import { cmsConfigured, cmsPublicBaseUrl } from '@/lib/cms';
+
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -5,9 +7,10 @@ export async function GET() {
     ok: true,
     service: 'janavada-next',
     site: 'https://janavada.com',
-    cmsLink: 'ready',
+    cmsLink: cmsConfigured() ? 'ready' : 'disabled',
+    cmsPublicUrl: cmsPublicBaseUrl(),
     publishingEnabled: false,
-    articleSource: 'base44',
+    articleSource: cmsConfigured() ? 'hybrid-cms-priority' : 'base44-fallback',
     time: new Date().toISOString(),
   }, {
     status: 200,
