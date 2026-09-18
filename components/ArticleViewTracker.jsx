@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 const BASE44_TRACK_URL = 'https://janavada-news.base44.app/functions/trackArticleView';
 
-export default function ArticleViewTracker({ articleId, language = 'en' }) {
+export default function ArticleViewTracker({ articleId, language = 'en', source = null }) {
   useEffect(() => {
     if (!articleId) return;
 
@@ -13,7 +13,7 @@ export default function ArticleViewTracker({ articleId, language = 'en' }) {
     const timer = window.setTimeout(() => {
       if (cancelled || document.visibilityState !== 'visible') return;
 
-      const cmsArticle = String(articleId).startsWith('art_');
+      const cmsArticle = source === 'cms' || String(articleId).startsWith('art_');
       fetch(cmsArticle ? '/api/cms-track-view' : BASE44_TRACK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +32,7 @@ export default function ArticleViewTracker({ articleId, language = 'en' }) {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [articleId, language]);
+  }, [articleId, language, source]);
 
   return null;
 }
