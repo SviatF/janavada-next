@@ -1,0 +1,28 @@
+name: JanaVada Next CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: janavada-next-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      JANAVADA_CMS_PUBLIC_URL: https://janavada-cms-staging.oleg22777.workers.dev/api/public
+      NEXT_PUBLIC_SITE_URL: https://janavada.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
