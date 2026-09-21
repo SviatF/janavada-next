@@ -8,6 +8,20 @@ import { CATEGORIES, getCategoryLabel } from '@/lib/categories';
 import JanaVadaLogo from '@/components/JanaVadaLogo';
 
 const PRIMARY_NAV = CATEGORIES.slice(0, 7);
+const NON_ARTICLE_SEGMENTS = new Set([
+  'category',
+  'author',
+  'authors',
+  'search',
+  'about',
+  'contact',
+  'privacy',
+  'terms',
+  'editorial-policy',
+  'ethics-policy',
+  'fact-checking-policy',
+  'corrections-policy',
+]);
 
 function switchLanguage(pathname, target) {
   const parts = pathname.split('/');
@@ -16,13 +30,22 @@ function switchLanguage(pathname, target) {
   return parts.join('/') || '/' + target;
 }
 
+function looksLikeArticlePath(pathname) {
+  const parts = String(pathname || '').split('/').filter(Boolean);
+  return parts.length === 3 &&
+    (parts[0] === 'en' || parts[0] === 'hi') &&
+    !NON_ARTICLE_SEGMENTS.has(parts[1]);
+}
+
 export default function Header({ lang = 'en' }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [switchingLanguage, setSwitchingLanguage] = useState(false);
   const otherLang = lang === 'en' ? 'hi' : 'en';
+  const languageHref = switchLanguage(pathname, otherLang);
 
   const dateLabel = useMemo(() => new Intl.DateTimeFormat(
     lang === 'hi' ? 'hi-IN' : 'en-IN',
@@ -35,6 +58,30 @@ export default function Header({ lang = 'en' }) {
     router.push('/' + lang + '/search?q=' + encodeURIComponent(query.trim()));
     setSearchOpen(false);
     setMobileOpen(false);
+  }
+
+  async function handleLanguageSwitch(e) {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (!looksLikeArticlePath(pathname)) {
+      setMobileOpen(false);
+      return;
+    }
+
+    e.preventDefault();
+    if (switchingLanguage) return;
+    setSwitchingLanguage(true);
+    setMobileOpen(false);
+
+    try {
+      const params = new URLSearchParams({ path: pathname, target: otherLang });
+      const res = await fetch('/api/language-switch?' + params.toString(), { cache: 'no-store' });
+      const body = await res.json().catch(() => null);
+      router.push(body?.href || '/' + otherLang);
+    } catch {
+      router.push('/' + otherLang);
+    } finally {
+      setSwitchingLanguage(false);
+    }
   }
 
   return (
@@ -66,11 +113,13 @@ export default function Header({ lang = 'en' }) {
 
           <div className="hidden items-center gap-1 md:flex">
             <Link
-              href={switchLanguage(pathname, otherLang)}
+              href={languageHref}
+              onClick={handleLanguageSwitch}
+              aria-busy={switchingLanguage}
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-indigo-50 hover:text-ashoka"
             >
               <Globe size={14} />
-              {otherLang === 'hi' ? 'हिन्दी' : 'English'}
+              {switchingLanguage ? '…' : (otherLang === 'hi' ? 'हिन्दी' : 'English')}
             </Link>
             {searchOpen ? (
               <form onSubmit={submitSearch} className="flex items-center gap-2">
@@ -144,11 +193,13 @@ export default function Header({ lang = 'en' }) {
             ))}
           </div>
           <Link
-            href={switchLanguage(pathname, otherLang)}
+            href={languageHref}
+            onClick={handleLanguageSwitch}
+            aria-busy={switchingLanguage}
             className="mt-3 flex items-center gap-2 border-t border-border px-3 pt-4 text-[13px] font-semibold text-gray-600"
           >
             <Globe size={16} />
-            {otherLang === 'hi' ? 'हिन्दी में पढ़ें' : 'Read in English'}
+            {switchingLanguage ? '…' : (otherLang === 'hi' ? 'हिन्दी में पढ़ें' : 'Read in English')}
           </Link>
         </div>
       )}
