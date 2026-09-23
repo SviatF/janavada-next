@@ -11,7 +11,7 @@ import { getHomeArticles, getTrendingArticles } from '@/lib/articles';
 import { getCategoryLabel } from '@/lib/categories';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
