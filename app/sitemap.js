@@ -8,6 +8,14 @@ export const revalidate = 1800;
 export default async function sitemap() {
   const [rows, authors] = await Promise.all([getSitemapArticles(), getPublicAuthors()]);
   const trustPages = ['about', 'editorial-policy', 'fact-checking-policy', 'corrections-policy', 'ethics-policy', 'authors', 'contact', 'privacy', 'terms'];
+  const promoUrls = [
+    {
+      url: SITE_URL + '/promo/telegram',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: .6,
+    },
+  ];
   const staticUrls = ['en', 'hi'].flatMap(lang => [
     { url: SITE_URL + '/' + lang, lastModified: new Date(), changeFrequency: 'hourly', priority: 1 },
     ...CATEGORIES.map(c => ({
@@ -32,5 +40,5 @@ export default async function sitemap() {
       };
     });
 
-  return [...staticUrls, ...articleUrls];
+  return [...promoUrls, ...staticUrls, ...articleUrls];
 }
