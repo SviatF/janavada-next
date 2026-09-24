@@ -12,27 +12,35 @@ function updateVisibleCounter(views, language) {
   const spans = Array.from(root.querySelectorAll('span'));
   const target = spans.find((element) => {
     const text = String(element.textContent || '').trim();
-    return /\b[\d,]+\s+views$/i.test(text) || /[\d,]+\s+व्यूज़$/.test(text);
+    return /\b[\d,]+\s+views(?:\s+views)?$/i.test(text) || /[\d,]+\s+व्यूज़(?:\s+व्यूज़)?$/.test(text);
   });
   if (!target) return;
 
   const label = language === 'hi' ? 'व्यूज़' : 'views';
   const nextText = `${value.toLocaleString()} ${label}`;
-  const textNode = Array.from(target.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
-  if (textNode) textNode.nodeValue = nextText;
-  else target.appendChild(document.createTextNode(nextText));
+
+  // Keep the eye icon, but replace every text node so the UI never becomes "2 views views".
+  Array.from(target.childNodes).forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) node.remove();
+  });
+  target.appendChild(document.createTextNode(nextText));
 }
 
 async function trackCms(articleId, language) {
   const response = await fetch('/api/cms-track-view', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'Cache-Control': 'no-cache',
+    },
     credentials: 'same-origin',
     keepalive: true,
     cache: 'no-store',
     body: JSON.stringify({
       article_id: articleId,
       language: language === 'hi' ? 'hi' : 'en',
+      request_nonce: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     }),
   });
   const payload = await response.json().catch(() => ({}));
@@ -45,6 +53,7 @@ async function trackLegacy(articleId, language) {
     headers: { 'Content-Type': 'application/json' },
     credentials: 'omit',
     keepalive: true,
+    cache: 'no-store',
     body: JSON.stringify({
       article_id: articleId,
       language: language === 'hi' ? 'hi' : 'en',
@@ -57,9 +66,12 @@ export default function ArticleViewTracker({ articleId, language = 'en', source 
     if (!articleId) return;
 
     let cancelled = false;
+    let tracked = false;
+    let timer = null;
 
-    const timer = window.setTimeout(async () => {
-      if (cancelled || document.visibilityState !== 'visible') return;
+    const trackOnce = async () => {
+      if (cancelled || tracked || document.visibilityState !== 'visible') return;
+      tracked = true;
 
       try {
         // New JanaVada CMS stories do not always use a predictable ID prefix. Try the CMS first
@@ -72,7 +84,12 @@ export default function ArticleViewTracker({ articleId, language = 'en', source 
           if (response.ok && payload?.ok) {
             updateVisibleCounter(payload.views, language);
             window.dispatchEvent(new CustomEvent('janavada:view-count', {
-              detail: { articleId, views: Number(payload.views || 0), viewsToday: Number(payload.views_today || 0) },
+              detail: {
+                articleId,
+                views: Number(payload.views || 0),
+                viewsToday: Number(payload.views_today || 0),
+                trackedAt: payload.tracked_at || null,
+              },
             }));
             return;
           }
@@ -85,11 +102,19 @@ export default function ArticleViewTracker({ articleId, language = 'en', source 
       } catch {
         // View analytics must never affect article UX.
       }
-    }, 1200);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') trackOnce();
+    };
+
+    timer = window.setTimeout(trackOnce, 400);
+    document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timer);
+      if (timer) window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [articleId, language, source]);
 
